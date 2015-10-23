@@ -7,6 +7,6 @@ All Things Data
 
 Schedule
 Day  | Topic | Session Leader
-------------- | -------------
+------------- | ------------- | ------------- 
 2015-10-16  | Maps in R | Andrew
 Content Cell  | Content Cell
