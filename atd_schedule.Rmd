@@ -1,0 +1,18 @@
+---
+title: "All Things Data schedule"
+author: ""
+date: "Fall 2015"
+output: pdf_document
+---
+
+Day           | Topic                   | Session Leader
+------------- | ----------------------- | ------------- 
+2015-10-16    | Maps in R               | Andrew
+2015-10-23    | Intro to ggplot         | Federico
+2015-10-30    | Multivariate statistics | Mike
+2015-11-06    | Maps revisited          | Lucia
+2015-11-13    | Transcriptome assembly  | Federico
+2015-11-20    | Diff. gene expression   | Emily, April
+2015-11-27    | Thanksgiving break      |
+2015-12-04    | Spatial statistics      | Lucia
+
