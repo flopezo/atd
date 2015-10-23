@@ -1,5 +1,5 @@
 ---
-title: "Introduction to ggplot and rOpenSci"
+title: "Introduction to ggplot"
 author: "Federico Lopez"
 date: "`r Sys.Date()`"
 output:
