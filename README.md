@@ -6,5 +6,5 @@ Data club organized by graduate students in the Biology Dept. at UVM
 [.Rmd](https://raw.githubusercontent.com/flopezo/atd/master/intro_to_ggplot.Rmd)  
 
 ### 2015-10-16 - Maps in R
-[.Rmd](https://adnguyen.github.io/assets/Yai_map_precip.Rmd)
-[Data](https://adnguyen.github.io/assets/Coordinates_Sites.csv)
+[.Rmd](https://raw.githubusercontent.com/adnguyen/adnguyen.github.io/master/assets/Yai_map_precip.Rmd)
+[Data](https://raw.githubusercontent.com/adnguyen/adnguyen.github.io/master/assets/Coordinates_Sites.csv)
