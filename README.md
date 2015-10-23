@@ -1,7 +1,7 @@
 # atd
 
 All Things Data  
-Data club organized by graduate students in the Biology Dept. at UVM
+Data club organized by graduate students in the Biology Dept. at UVM  
 [Fall 2015 Schedule](https://github.com/flopezo/atd/blob/master/atd_schedule.pdf)
 
 2015-10-23 Session - Introduction to `ggplot`  
