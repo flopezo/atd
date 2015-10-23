@@ -13,7 +13,7 @@ Data club organized by graduate students in the Biology Dept. at UVM
 [An introduction to R](https://cran.r-project.org/doc/manuals/R-intro.html)  
 [Markdown basics](http://rmarkdown.rstudio.com/authoring_basics.html)  
 [`ggplot` documenatation](http://docs.ggplot2.org/current/)  
-[rOpenSci packages](https://ropensci.org/packages/) 
+[rOpenSci packages](https://ropensci.org/packages/)  
 [Quick-R](http://www.statmethods.net/)  
 [R bloggers](http://www.r-bloggers.com/)  
 [R function of the day](http://rfunction.com/)  
