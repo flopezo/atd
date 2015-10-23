@@ -149,7 +149,7 @@ cwse
 cwse$Diet <- as.factor(cwse$Diet)
 ggplot(cwse, aes(x=Diet, y=weightm, fill=Diet)) + 
   geom_bar(stat="identity") + 
-  geom_errorbar(aes(ymin=weightm-se, ymax=weightm+se), width=.2) + 
+  geom_errorbar(aes(ymin=weightm-se, ymax=weightm+se), width=.1) + 
   scale_fill_brewer(palette="Set3")
 
 # Stacked bar graph
@@ -167,7 +167,7 @@ ggplot(cw, aes(x=Time, y=weight, group=Chick, colour=Diet)) +
   geom_point(size=3) + geom_line(size=1)
 
 cwd12 <- subset(cw, Diet==1:2)
-cwd12
+summary(cwd12)
 cwse12 <- ddply(cwd12, c("Diet", "Time"), summarise, 
   weightm=mean(weight, na.rm=TRUE), 
   sd=sd(weight, na.rm=TRUE), 
@@ -313,7 +313,7 @@ bombus.maplegend <- theme(plot.title=element_text(face="italic",
 
 states.map + bombus.map.occ + bombus.maplabels + bombus.maplegend
 
-bombus.map.den <-  stat_density2d(aes(x=decimalLongitude, y=decimalLatitude, 
+bombus.map.den <- stat_density2d(aes(x=decimalLongitude, y=decimalLatitude, 
   group=name, colour=name), size=1, data=bombus.lat.lon, geom="density2d")
 bombus.den.title <- expression(paste(italic("Bombus"), " distribution"))
 bombus.maplabels <- labs(title=bombus.den.title, x="Longitude", y="Latitude", 
@@ -322,7 +322,7 @@ states.map + bombus.map.den + bombus.maplabels + bombus.maplegend
 ```
 
 ## Map environmental data
-```{r}
+```{r, message=FALSE}
 # Create a directory for kml files
 dir.create("~/Desktop/kmltemp")
 options(kmlpath="~/Desktop/kmltemp")
@@ -343,7 +343,7 @@ nam.map
 ```
 
 # Other examples using morphological data for Darwin's finches
-```{r}
+```{r, warning=FALSE}
 data(finch.ind)
 tr <- traits.finch; sp <- sp.finch; dist <- ind.plot.finch
 tr$sp <- sp; tr$dist <- dist
