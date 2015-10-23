@@ -1,0 +1,364 @@
+---
+title: "Introduction to ggplot and rOpenSci"
+author: "Federico Lopez"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+---
+Install the necessary packages
+```{r, eval=FALSE}
+install.packages("RCurl")
+install.packages("ggplot2")
+install.packages("ggpmap")
+install.packages("maps")
+install.packages("rdryad")
+install.packages("rgbif")
+install.packages("plyr")
+install.packages("rWBclimate")
+install.packages("cati")
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+# Load libraries
+library(RCurl) # Download URLs
+library(ggplot2) # Create plots
+library(ggmap) # Create maps
+library(maps) # For map data
+library(rdryad) # Retrieve data sets from dryad
+library(rgbif) # Retrieve occurence data from gbif
+library(plyr) # Split data frames and apply functions
+library(rWBclimate) # Retrieve World Bank climate data
+library(cati) # For morphological data from Darwin's finches
+```
+
+# Getting started with `qplot`
+ggplot2 is a powerful plotting system for R. ggplot2 documentation is
+available at [docs.ggplot2.org](http://docs.ggplot2.org/current/). `qplot` is the basic plotting function in the `ggplot2` package. `qplot` is similar to the base R function `plot`; however, you cannot pass any type of R object to `qplot`.  
+Basic usage: `qplot(x, y, data...)`, where data is the data frame to use `...` means other aesthetics passed for each layer.
+
+## Using qplot to create scatterplots, histograms and boxplots
+### Scatterplots
+```{r}
+# Retrieve a published dataset
+# Copy the file’s raw GitHub URL
+polistesdat.url <- "https://raw.githubusercontent.com/flopezo/atd/master/Tibbets_et_al_2015_data.csv"
+polistesdat.url <- getURL(polistesdat.url)
+polistes.data <- read.csv(textConnection(polistesdat.url))
+# Show the variables included in the dataset
+summary(polistes.data)
+```
+
+```{r}
+# Create a scatter diagram
+qplot(logface, nest.size, data=polistes.data) + geom_point(size=4)
+qplot(logface, nest.size, data=polistes.data, shape=sfmf) + geom_point(size=4)
+
+# Add colors based on a categorical variable
+qplot(logface, nest.size, data=polistes.data, colour=sfmf) + geom_point(size=4)
+```
+
+In `ggplot`, geoms, short for geometric objects, describe the type of plot you will produce. For example, `geom_point` is used for scatterplots. `geom_point` is the default in `qplot` if x and y are specified. If only x is specified, `qplot` defaults to `geom_histogram`. In the scatter diagrams above, the `size` argument in `geom_point` controls the size of data points.  
+
+### Fit a linear model
+Add a smoothed line and fit linear models. `lm` is used to fit linear models and carry out regressions. A typical `lm` model has the form `response ~ terms` where `response` is the (numeric) response vector and `terms` specifies a linear predictor for response.
+```{r}
+# Fit a linear model (by default includes 95% confidence region)
+qplot(logface, nest.size, data=polistes.data, geom=c("point", "smooth"), 
+  method="lm") + geom_point(size=4)
+
+# Create separate regressions for each factor and add labels
+qplot(logface, nest.size, data=polistes.data, geom=c("point", "smooth"), 
+  method="lm", colour=sfmf, 
+  main="Relationship between facial pattern brokenness and nest size", 
+  xlab="Facial Pattern Brokenness",
+  ylab="NUmber of Nest Cells") + geom_point(size=4)
+```
+
+### Boxplots and jittered points
+```{r}
+# Load the ChickWeight dataset from the base R packages
+# Results from an experiment on the effect of diet on early growth of chicks
+cw <- ChickWeight
+summary(cw)
+tapply(cw$weight, cw$Diet, FUN=mean)
+qplot(Diet, weight, data=cw, geom="boxplot", colour=Diet)
+qplot(Diet, weight, data=cw, geom="jitter", colour=Diet)
+# Use I() to manually set the aesthetics, e.g., colour = I("red") or size = I(3)
+qplot(Time, weight, data=cw, geom="jitter", colour=Diet, size=I(3))
+qplot(Diet, weight, data=cw, geom=c("boxplot","jitter"), colour=Diet)
+```
+
+### Histograms and density plots
+```{r}
+qplot(weight, data=cw, geom="histogram", fill=Diet)
+qplot(weight, data=cw, geom="density", fill=Diet, alpha=I(0.5))
+```
+
+# `ggplot`
+`qplot` does not show the power of `ggplot`. `ggplot2` functions can be chained with "+" signs. All the options that can be chained are available at  [docs.ggplot2.org](http://docs.ggplot2.org/current/). Let us remake the previous graphs using a few of the wide variety of options available in `ggplot`.
+## Scatterplots
+```{r}
+ggplot(polistes.data, aes(x=weight, y=nest.size, colour=nest.size)) + 
+  geom_point(size=5, alpha=.8) + 
+  # Add main and axis titles
+  labs(title="Relationship between weight and nest size", 
+    x="Weight", y="Number of Cells") +
+  # Add text to graph
+  annotate("text", x=0.130, y=75, label="Group 1", size=10) +
+  annotate("text", x=0.075, y=180, label="Group 2", size=10) + 
+  # Use a manually defined palette
+  scale_colour_gradientn(colours=c("darkred", "orange", "yellow", "white"))
+```
+
+## Boxplots
+```{r}
+# The redundant legend can be removed with '+ guides(fill=FALSE)'
+ggplot(cw, aes(x=Diet, y=weight, colour=Diet)) + geom_boxplot() + 
+  stat_summary(fun.y="mean", geom="point", shape=5, size=4) + 
+  labs(title="Relationship between diet and weight", 
+    x="Diet", y="Weight") +
+  theme(plot.title=element_text(size=rel(2))) + # Title twice the base font size
+  theme(axis.title.x=element_text(size=rel(1.5))) + 
+  theme(axis.title.y=element_text(size=rel(1.5))) + 
+  scale_fill_brewer(palette="Pastel1")
+```
+
+## Bargraphs
+```{r}
+# Use stat="identity" if you want the heights of the bars to represent 
+# values in the data
+ggplot(cw, aes(x=Diet, y=weight, fill=Diet)) + 
+  geom_bar(stat="identity", width=0.6) + 
+  scale_fill_grey()
+
+ggplot(cw, aes(x=Diet, y=weight, fill=Diet)) + 
+  geom_bar(stat="identity", width=0.6) +  
+  scale_fill_brewer(palette="Blues")
+
+# Add error bars
+# Split data frame, apply function, and return results in a data frame
+library(plyr)
+cwse <- ddply(cw, "Diet", summarise, 
+  weightm=mean(weight, na.rm=TRUE), 
+  sd=sd(weight, na.rm=TRUE), 
+  n=sum(!is.na(weight)), 
+  se=sd/sqrt(n))
+cwse
+cwse$Diet <- as.factor(cwse$Diet)
+ggplot(cwse, aes(x=Diet, y=weightm, fill=Diet)) + 
+  geom_bar(stat="identity") + 
+  geom_errorbar(aes(ymin=weightm-se, ymax=weightm+se), width=.2) + 
+  scale_fill_brewer(palette="Set3")
+
+# Stacked bar graph
+ggplot(cw, aes(x=Time, y=weight, fill=Diet)) + 
+  geom_bar(stat="identity")
+```
+
+## Line graphs and stacked area graphs
+```{r}
+# If your line graph looks wrong, specify the grouping variable with group. 
+# Problems occur with line graphs because ggplot() is unable to determine 
+# how to group the variables
+# A sawtooth pattern results from improper grouping
+ggplot(cw, aes(x=Time, y=weight, group=Chick, colour=Diet)) + 
+  geom_point(size=3) + geom_line(size=1)
+
+cwd12 <- subset(cw, Diet==1:2)
+cwd12
+cwse12 <- ddply(cwd12, c("Diet", "Time"), summarise, 
+  weightm=mean(weight, na.rm=TRUE), 
+  sd=sd(weight, na.rm=TRUE), 
+  n=sum(!is.na(weight)), 
+  se=sd/sqrt(n))
+cwse12
+ggplot(cwse12, aes(x=Time, y=weightm, colour=Diet)) + 
+    geom_errorbar(aes(ymin=weightm-se, ymax=weightm+se), width=.4, size=0.8) +
+    geom_line(size=1.5) +
+    geom_point(size=3)
+
+# Stacked area graph
+# Area graphs represent cumulated totals over time
+#tapply(cw$weight, cw$Diet, FUN=sum)
+#cwd4 <- subset(cw, Diet==4)
+#tapply(cwd4$weight, cwd4$Time, FUN=sum)
+ggplot(cw, aes(x=Time, y=weight, group=Chick, fill=Diet)) + 
+  geom_area(alpha=0.8)
+
+ggplot(cw, aes(x=Time, y=weight, group=Chick, fill=Diet)) + 
+  geom_area(colour="black", size=.2, alpha=.8) + 
+  scale_fill_brewer(palette="Blues")
+```
+
+## Histograms
+```{r}
+ggplot(polistes.data, aes(x=weight, fill=sfmf)) + geom_histogram(alpha=.8)
+ggplot(cw, aes(x=weight, fill=Diet)) + geom_histogram(alpha=.6)
+
+# Find the mean of each group
+library(plyr)
+# For each subset of a data frame, ddply applies a function and then combines
+# results into a data frame
+mwt <- ddply(cw, "Diet", summarise, weight.mean=mean(weight))
+mwt
+# Overlaid histograms with means
+ggplot(cw, aes(x=weight, fill=Diet)) + geom_histogram(alpha=.5) + 
+    geom_vline(data=mwt, aes(xintercept=weight.mean, colour=Diet), 
+      linetype="dashed", size=1)
+
+# Use facets to display subsets of the dataset in different panels
+ggplot(cw, aes(x=weight, fill=Diet)) + geom_histogram(alpha=.5) + 
+  facet_grid(. ~ Diet)
+```
+
+# More `ggplot` and an introduction to rOpenSci packages
+rOpenSci is an inititative to create R packages for accessing data repositories. The full list of packages is available 
+[here](https://ropensci.org/packages/)
+```{r}
+# Here we will use the 'rdryad' package to retrieve a dataset from Dryad
+# Retrieve the data using the Dryad identifier '10255/dryad.34389'
+# which is at the end of the URL where the dataset is found
+# http://datadryad.org/handle/10255/dryad.34389
+# the original publication is Kolbe et al. 2011, Evolution 65(12): 3608-3624
+anolis.data <- download_url("10255/dryad.34389")
+anolis.data <- dryad_getfile(anolis.data)
+# create plot with discrete and continous variables
+anolis.scatter <- ggplot(anolis.data, aes(x=Ecomorph, y=Snout.vent.length, 
+  colour=Snout.vent.length)) + geom_point(size=4)
+anolis.scatter
+# create plot with continuous variables
+anolis.scatter <- ggplot(anolis.data, aes(x=Head.length, y=Snout.vent.length, 
+  colour=Ecomorph)) + geom_point(size=4)
+anolis.scatter
+```
+
+# `ggplot` and `rgbif`
+## Plot GBIF occurrences of a species
+```{r}
+# search for occurrences on GBIF
+?occ_search
+apicea.occ <- occ_search(scientificName="Aphaenogaster picea", limit=1000, 
+  return='data', hasCoordinate=TRUE)
+# this dataset includes more than 100 columns
+# show first 10 lines for columns 1 to 4
+head(apicea.occ, n=10L)[,1:4]
+
+# select four columns from the complete data set
+apicea.lat.lon <- apicea.occ[,c("name", "decimalLatitude", "decimalLongitude", 
+  "countryCode")]
+# show the unique country codes in the data set
+unique(apicea.lat.lon$countryCode)
+
+# select only US occurrences
+apicea.lat.lon <- subset(apicea.lat.lon, countryCode=="US")
+summary(apicea.lat.lon)
+
+# get map data for world
+#world_map <- map_data("world")
+
+# show unique regions
+#sort(unique(world_map$region))
+
+# get map data for USA
+states.map <- map_data("state")
+head(states.map)
+#states.map <- subset(states.map, long > -100 & lat < 50)
+states.map <- ggplot(states.map, aes(x=long, y=lat, group=group)) + 
+  geom_polygon(fill="white", colour="black") + coord_map("mercator")
+#states.map
+states.map +
+geom_point(aes(x=decimalLongitude, y=decimalLatitude, group=name), 
+  colour="orange", size=4, data=apicea.lat.lon)
+#gbifmap(apicea.lat.lon)
+```
+
+## Plot GBIF occurrences of two or more species
+```{r}
+splist <- c("Bombus fraternus", "Bombus perplexus")
+# apply a function over a list or vector with sapply
+bombus.keys <- sapply(splist, function(x) name_backbone(name=x)$speciesKey, 
+  USE.NAMES=FALSE)
+bombus.occ <- occ_search(taxonKey=bombus.keys, limit=500, return="data", 
+  hasCoordinate=TRUE)
+summary(bombus.occ)
+head(bombus.occ$`1340432`, n=10L)[,1:4]
+bfraternus.lat.lon <- bombus.occ$`1340432`[,c("name", "decimalLatitude", 
+  "decimalLongitude", "countryCode")]
+head(bombus.occ$`1340406`, n=10L)[,1:4]
+bperplexus.lat.lon <- bombus.occ$`1340406`[,c("name", "decimalLatitude", 
+  "decimalLongitude", "countryCode")]
+bperplexus.lat.lon <- subset(bperplexus.lat.lon, decimalLatitude < 50)
+bombus.lat.lon <- rbind(bfraternus.lat.lon, bperplexus.lat.lon)
+bombus.lat.lon <- subset(bombus.lat.lon, countryCode=="US")
+states.map <- map_data("state")
+#states.map <- subset(states.map, long > -120 & lat < 50)
+states.map <- ggplot(states.map, aes(x=long, y=lat, group=group)) + 
+  geom_polygon(fill="white", colour="black") + coord_map("mercator")
+#states.map
+
+# create a title for ggplot that italicizes only the genus name
+bombus.occ.title <- expression(paste(italic("Bombus"), " occurrences"))
+bombus.map.occ <- geom_point(aes(x=decimalLongitude, y=decimalLatitude, 
+  group=name, colour=name, shape=name), size=4, data=bombus.lat.lon)
+bombus.maplabels <- labs(title=bombus.occ.title, x="Longitude", y="Latitude", 
+  colour="Species", shape="Species")
+bombus.maplegend <- theme(plot.title=element_text(face="italic", 
+  size=rel(1.8))) + 
+  theme(legend.title=element_text(size=rel(1.5))) +
+  theme(legend.text=element_text(face="italic", size=rel(1.2))) +
+  theme(axis.title.x=element_text(size=rel(1.2))) +
+  theme(axis.title.y=element_text(size=rel(1.2)))
+
+states.map + bombus.map.occ + bombus.maplabels + bombus.maplegend
+
+bombus.map.den <-  stat_density2d(aes(x=decimalLongitude, y=decimalLatitude, 
+  group=name, colour=name), size=1, data=bombus.lat.lon, geom="density2d")
+bombus.den.title <- expression(paste(italic("Bombus"), " distribution"))
+bombus.maplabels <- labs(title=bombus.den.title, x="Longitude", y="Latitude", 
+  colour="Species", shape="Species")
+states.map + bombus.map.den + bombus.maplabels + bombus.maplegend
+```
+
+## Map environmental data
+```{r}
+# Create a directory for kml files
+dir.create("~/Desktop/kmltemp")
+options(kmlpath="~/Desktop/kmltemp")
+#http://data.worldbank.org/developers/climate-data-api
+#http://unstats.un.org/unsd/methods/m49/m49alpha.htm
+#http://data.worldbank.org/sites/default/files/climate_data_api_basins.pdf
+# Create a vector of World Bank basin IDs
+nam <- 328:365
+# Download map for vector of basins
+nam.basin <- create_map_df(nam)
+# Retrieve historical precipitation data
+temp.dat <- get_historical_temp(nam, "decade")
+# Create a subset using only data from one year
+temp.dat <- subset(temp.dat, temp.dat$year==2000)
+# Create maps of climate data
+nam.map <- climate_map(nam.basin, temp.dat, return_map=TRUE)
+nam.map  
+```
+
+# Other examples using morphological data for Darwin's finches
+```{r}
+data(finch.ind)
+tr <- traits.finch; sp <- sp.finch; dist <- ind.plot.finch
+tr$sp <- sp; tr$dist <- dist
+head(tr)
+
+ggplot(tr, aes(x=BeakH, y=UBeakL, colour=dist)) + 
+  geom_point(size=4, alpha=0.4) + 
+  stat_smooth(method=lm, colour="black", level=0.95) + 
+  scale_colour_brewer(palette="Set3")
+
+mbh <- ddply(tr, "dist", summarise, bh.mean=mean(BeakH, na.rm=TRUE))
+mbh
+
+ggplot(tr, aes(x=BeakH, fill=dist)) + geom_density(alpha=0.4) +   
+  scale_fill_brewer(palette="Set1") +
+  geom_vline(data=mbh, aes(xintercept=bh.mean, colour=dist), 
+    linetype="dashed", size=1)
+```
