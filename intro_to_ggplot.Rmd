@@ -11,7 +11,7 @@ Install the necessary packages
 ```{r, eval=FALSE}
 install.packages("RCurl")
 install.packages("ggplot2")
-install.packages("ggpmap")
+install.packages("ggmap")
 install.packages("maps")
 install.packages("rdryad")
 install.packages("rgbif")
