@@ -11,6 +11,7 @@ Install the necessary packages
 ```{r, eval=FALSE}
 install.packages("RCurl")
 install.packages("ggplot2")
+install.packages("gridExtra")
 install.packages("ggmap")
 install.packages("maps")
 install.packages("rdryad")
@@ -24,6 +25,7 @@ install.packages("cati")
 # Load libraries
 library(RCurl) # Download URLs
 library(ggplot2) # Create plots
+library(gridExtra) 
 library(ggmap) # Create maps
 library(maps) # For map data
 library(rdryad) # Retrieve data sets from dryad
@@ -43,7 +45,7 @@ Basic usage: `qplot(x, y, data...)`, where data is the data frame to use `...` m
 ```{r}
 # Retrieve a published dataset
 # Copy the file’s raw GitHub URL
-polistesdat.url <- "https://raw.githubusercontent.com/flopezo/atd/master/Tibbets_et_al_2015_data.csv"
+polistesdat.url <- "https://raw.githubusercontent.com/flopezo/atd/master/Tibbetts_et_al_2015_data.csv"
 polistesdat.url <- getURL(polistesdat.url)
 polistes.data <- read.csv(textConnection(polistesdat.url))
 # Show the variables included in the dataset
@@ -52,11 +54,11 @@ summary(polistes.data)
 
 ```{r}
 # Create a scatter diagram
-qplot(logface, nest.size, data=polistes.data) + geom_point(size=4)
-qplot(logface, nest.size, data=polistes.data, shape=sfmf) + geom_point(size=4)
+qplot(logface, nest.size, data=polistes.data) + geom_point(size=3)
+qplot(logface, nest.size, data=polistes.data, shape=sfmf) + geom_point(size=3)
 
 # Add colors based on a categorical variable
-qplot(logface, nest.size, data=polistes.data, colour=sfmf) + geom_point(size=4)
+qplot(logface, nest.size, data=polistes.data, colour=sfmf) + geom_point(size=3)
 ```
 
 In `ggplot`, geoms, short for geometric objects, describe the type of plot you will produce. For example, `geom_point` is used for scatterplots. `geom_point` is the default in `qplot` if x and y are specified. If only x is specified, `qplot` defaults to `geom_histogram`. In the scatter diagrams above, the `size` argument in `geom_point` controls the size of data points.  
@@ -66,14 +68,14 @@ Add a smoothed line and fit linear models. `lm` is used to fit linear models and
 ```{r}
 # Fit a linear model (by default includes 95% confidence region)
 qplot(logface, nest.size, data=polistes.data, geom=c("point", "smooth"), 
-  method="lm") + geom_point(size=4)
+  method="lm") + geom_point(size=3)
 
 # Create separate regressions for each factor and add labels
 qplot(logface, nest.size, data=polistes.data, geom=c("point", "smooth"), 
   method="lm", colour=sfmf, 
   main="Relationship between facial pattern brokenness and nest size", 
-  xlab="Facial Pattern Brokenness",
-  ylab="NUmber of Nest Cells") + geom_point(size=4)
+  xlab="Facial pattern brokenness",
+  ylab="NUmber of nest cells") + geom_point(size=3)
 ```
 
 ### Boxplots and jittered points
@@ -101,13 +103,13 @@ qplot(weight, data=cw, geom="density", fill=Diet, alpha=I(0.5))
 ## Scatterplots
 ```{r}
 ggplot(polistes.data, aes(x=weight, y=nest.size, colour=nest.size)) + 
-  geom_point(size=5, alpha=.8) + 
+  geom_point(size=3, alpha=.8) + 
   # Add main and axis titles
   labs(title="Relationship between weight and nest size", 
-    x="Weight", y="Number of Cells") +
+    x="Weight", y="Number of nest cells") +
   # Add text to graph
-  annotate("text", x=0.130, y=75, label="Group 1", size=10) +
-  annotate("text", x=0.075, y=180, label="Group 2", size=10) + 
+  annotate("text", x=0.130, y=75, label="Group 1", size=6) +
+  annotate("text", x=0.075, y=180, label="Group 2", size=6) + 
   # Use a manually defined palette
   scale_colour_gradientn(colours=c("darkred", "orange", "yellow", "white"))
 ```
@@ -119,9 +121,9 @@ ggplot(cw, aes(x=Diet, y=weight, colour=Diet)) + geom_boxplot() +
   stat_summary(fun.y="mean", geom="point", shape=5, size=4) + 
   labs(title="Relationship between diet and weight", 
     x="Diet", y="Weight") +
-  theme(plot.title=element_text(size=rel(2))) + # Title twice the base font size
-  theme(axis.title.x=element_text(size=rel(1.5))) + 
-  theme(axis.title.y=element_text(size=rel(1.5))) + 
+  theme(plot.title=element_text(size=rel(1.5))) + # Title twice the base font size
+  theme(axis.title.x=element_text(size=rel(1.2))) + 
+  theme(axis.title.y=element_text(size=rel(1.2))) + 
   scale_fill_brewer(palette="Pastel1")
 ```
 
@@ -159,7 +161,7 @@ ggplot(cw, aes(x=Time, y=weight, fill=Diet)) +
 
 ## Line graphs and stacked area graphs
 ```{r}
-# If your line graph looks wrong, specify the grouping variable with group. 
+# If your line graph looks wrong, specify the grouping variable with `group`. 
 # Problems occur with line graphs because ggplot() is unable to determine 
 # how to group the variables
 # A sawtooth pattern results from improper grouping
@@ -213,6 +215,40 @@ ggplot(cw, aes(x=weight, fill=Diet)) + geom_histogram(alpha=.5) +
   facet_grid(. ~ Diet)
 ```
 
+## Scatterplots with marginal density plots
+```{r}
+empty.plot <- ggplot() + geom_point(aes(1,1), colour="white") +
+  theme(plot.background=element_blank(), 
+    panel.grid.major=element_blank(), 
+    panel.grid.minor=element_blank(), 
+    panel.border=element_blank(), 
+    panel.background=element_blank(),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    axis.text.x=element_blank(),
+    axis.text.y=element_blank(),
+    axis.ticks=element_blank())
+
+xyscatter <- ggplot(polistes.data, aes(x=weight, y=nest.size, 
+  colour=sfmf)) + geom_point(size=3, alpha=.8) + 
+  scale_color_manual(values=c("orange", "cornflowerblue")) + 
+  theme(legend.position=c(1,1), legend.justification=c(1,1))
+ 
+xdensity.top <- ggplot(polistes.data, aes(weight, fill=sfmf)) + 
+  geom_density(alpha=0.5) + 
+  scale_fill_manual(values=c("orange", "cornflowerblue")) + 
+  theme(legend.position="none", axis.title.x=element_blank())
+
+ydensity.right <- ggplot(polistes.data, aes(nest.size, fill=sfmf)) + 
+  geom_density(alpha=0.5) +  
+  coord_flip() + 
+  scale_fill_manual(values=c("orange", "cornflowerblue")) + 
+  theme(legend.position="none", axis.title.x=element_blank()) 
+
+# Arrange the plots together
+grid.arrange(xdensity.top, empty.plot, xyscatter, ydensity.right, 
+  ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
+```
 # More `ggplot` and an introduction to rOpenSci packages
 rOpenSci is an inititative to create R packages for accessing data repositories. The full list of packages is available 
 [here](https://ropensci.org/packages/)
@@ -226,11 +262,11 @@ anolis.data <- download_url("10255/dryad.34389")
 anolis.data <- dryad_getfile(anolis.data)
 # create plot with discrete and continous variables
 anolis.scatter <- ggplot(anolis.data, aes(x=Ecomorph, y=Snout.vent.length, 
-  colour=Snout.vent.length)) + geom_point(size=4)
+  colour=Snout.vent.length)) + geom_point(size=3)
 anolis.scatter
 # create plot with continuous variables
 anolis.scatter <- ggplot(anolis.data, aes(x=Head.length, y=Snout.vent.length, 
-  colour=Ecomorph)) + geom_point(size=4)
+  colour=Ecomorph)) + geom_point(size=3)
 anolis.scatter
 ```
 
@@ -270,7 +306,7 @@ states.map <- ggplot(states.map, aes(x=long, y=lat, group=group)) +
 #states.map
 states.map +
 geom_point(aes(x=decimalLongitude, y=decimalLatitude, group=name), 
-  colour="orange", size=4, data=apicea.lat.lon)
+  colour="orange", size=3, data=apicea.lat.lon)
 #gbifmap(apicea.lat.lon)
 ```
 
@@ -301,20 +337,20 @@ states.map <- ggplot(states.map, aes(x=long, y=lat, group=group)) +
 # create a title for ggplot that italicizes only the genus name
 bombus.occ.title <- expression(paste(italic("Bombus"), " occurrences"))
 bombus.map.occ <- geom_point(aes(x=decimalLongitude, y=decimalLatitude, 
-  group=name, colour=name, shape=name), size=4, data=bombus.lat.lon)
+  group=name, colour=name, shape=name), size=3, data=bombus.lat.lon)
 bombus.maplabels <- labs(title=bombus.occ.title, x="Longitude", y="Latitude", 
   colour="Species", shape="Species")
 bombus.maplegend <- theme(plot.title=element_text(face="italic", 
-  size=rel(1.8))) + 
-  theme(legend.title=element_text(size=rel(1.5))) +
-  theme(legend.text=element_text(face="italic", size=rel(1.2))) +
-  theme(axis.title.x=element_text(size=rel(1.2))) +
-  theme(axis.title.y=element_text(size=rel(1.2)))
+  size=rel(1.2))) + 
+  theme(legend.title=element_text(size=rel(0.6))) +
+  theme(legend.text=element_text(face="italic", size=rel(0.6))) +
+  theme(axis.title.x=element_text(size=rel(0.6))) +
+  theme(axis.title.y=element_text(size=rel(0.6)))
 
 states.map + bombus.map.occ + bombus.maplabels + bombus.maplegend
 
 bombus.map.den <- stat_density2d(aes(x=decimalLongitude, y=decimalLatitude, 
-  group=name, colour=name), size=1, data=bombus.lat.lon, geom="density2d")
+  group=name, colour=name), size=0.6, data=bombus.lat.lon, geom="density2d")
 bombus.den.title <- expression(paste(italic("Bombus"), " distribution"))
 bombus.maplabels <- labs(title=bombus.den.title, x="Longitude", y="Latitude", 
   colour="Species", shape="Species")
@@ -322,7 +358,7 @@ states.map + bombus.map.den + bombus.maplabels + bombus.maplegend
 ```
 
 ## Map environmental data
-```{r, message=FALSE}
+```{r warning=FALSE, results='hide'}
 # Create a directory for kml files
 dir.create("~/Desktop/kmltemp")
 options(kmlpath="~/Desktop/kmltemp")
@@ -333,6 +369,8 @@ options(kmlpath="~/Desktop/kmltemp")
 nam <- 328:365
 # Download map for vector of basins
 nam.basin <- create_map_df(nam)
+```
+```{r}
 # Retrieve historical precipitation data
 temp.dat <- get_historical_temp(nam, "decade")
 # Create a subset using only data from one year
