@@ -1,7 +1,7 @@
 ---
-title: "Introduction to ggplot"
+title: "An introduction to ggplot"
 author: "Federico Lopez"
-date: "`r Sys.Date()`"
+date: "October 23, 2015"
 output:
   pdf_document:
     number_sections: yes
@@ -38,7 +38,7 @@ library(cati) # For morphological data from Darwin's finches
 # Getting started with `qplot`
 ggplot2 is a powerful plotting system for R. ggplot2 documentation is
 available at [docs.ggplot2.org](http://docs.ggplot2.org/current/). `qplot` is the basic plotting function in the `ggplot2` package. `qplot` is similar to the base R function `plot`; however, you cannot pass any type of R object to `qplot`.  
-Basic usage: `qplot(x, y, data...)`, where data is the data frame to use `...` means other aesthetics passed for each layer.
+Basic usage: `qplot(x, y, data...)`, where data is the data frame to use and `...` means other aesthetics passed for each layer.
 
 ## Using qplot to create scatterplots, histograms and boxplots
 ### Scatterplots
@@ -93,13 +93,14 @@ qplot(Diet, weight, data=cw, geom=c("boxplot","jitter"), colour=Diet)
 ```
 
 ### Histograms and density plots
-```{r}
+```{r, warning=FALSE}
 qplot(weight, data=cw, geom="histogram", fill=Diet)
 qplot(weight, data=cw, geom="density", fill=Diet, alpha=I(0.5))
 ```
 
 # `ggplot`
-`qplot` does not show the power of `ggplot`. `ggplot2` functions can be chained with "+" signs. All the options that can be chained are available at  [docs.ggplot2.org](http://docs.ggplot2.org/current/). Let us remake the previous graphs using a few of the wide variety of options available in `ggplot`.
+`qplot` does not show the power of `ggplot`. `ggplot2` functions can be chained with "+" signs. All the options that can be chained are available at  [docs.ggplot2.org](http://docs.ggplot2.org/current/). Let us remake the previous graphs using a few of the wide variety of options available in `ggplot`.  
+
 ## Scatterplots
 ```{r}
 ggplot(polistes.data, aes(x=weight, y=nest.size, colour=nest.size)) + 
@@ -195,7 +196,7 @@ ggplot(cw, aes(x=Time, y=weight, group=Chick, fill=Diet)) +
 ```
 
 ## Histograms
-```{r}
+```{r, warning=FALSE}
 ggplot(polistes.data, aes(x=weight, fill=sfmf)) + geom_histogram(alpha=.8)
 ggplot(cw, aes(x=weight, fill=Diet)) + geom_histogram(alpha=.6)
 
@@ -249,6 +250,7 @@ ydensity.right <- ggplot(polistes.data, aes(nest.size, fill=sfmf)) +
 grid.arrange(xdensity.top, empty.plot, xyscatter, ydensity.right, 
   ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
 ```
+
 # More `ggplot` and an introduction to rOpenSci packages
 rOpenSci is an inititative to create R packages for accessing data repositories. The full list of packages is available 
 [here](https://ropensci.org/packages/)
@@ -297,7 +299,7 @@ summary(apicea.lat.lon)
 # show unique regions
 #sort(unique(world_map$region))
 
-# get map data for USA
+# get US map data
 states.map <- map_data("state")
 head(states.map)
 #states.map <- subset(states.map, long > -100 & lat < 50)
@@ -337,15 +339,15 @@ states.map <- ggplot(states.map, aes(x=long, y=lat, group=group)) +
 # create a title for ggplot that italicizes only the genus name
 bombus.occ.title <- expression(paste(italic("Bombus"), " occurrences"))
 bombus.map.occ <- geom_point(aes(x=decimalLongitude, y=decimalLatitude, 
-  group=name, colour=name, shape=name), size=3, data=bombus.lat.lon)
+  group=name, colour=name, shape=name), size=2, data=bombus.lat.lon)
 bombus.maplabels <- labs(title=bombus.occ.title, x="Longitude", y="Latitude", 
   colour="Species", shape="Species")
 bombus.maplegend <- theme(plot.title=element_text(face="italic", 
   size=rel(1.2))) + 
   theme(legend.title=element_text(size=rel(0.6))) +
   theme(legend.text=element_text(face="italic", size=rel(0.6))) +
-  theme(axis.title.x=element_text(size=rel(0.6))) +
-  theme(axis.title.y=element_text(size=rel(0.6)))
+  theme(axis.title.x=element_text(size=rel(0.8))) +
+  theme(axis.title.y=element_text(size=rel(0.8)))
 
 states.map + bombus.map.occ + bombus.maplabels + bombus.maplegend
 
