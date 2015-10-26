@@ -18,7 +18,7 @@ Data club organized by graduate students in the Biology Dept. at UVM
 [`ggplot` documentation](http://docs.ggplot2.org/current/)  
 [Quick-R](http://www.statmethods.net/)  
 R packages for [ecology](https://cran.r-project.org/web/views/Environmetrics.html), [phylogenetics](https://cran.r-project.org/web/views/Phylogenetics.html), [genetics](https://cran.r-project.org/web/views/Genetics.html), and [analysis of spatial data](https://cran.r-project.org/web/views/Spatial.html)  
-[R packages for multivariate statistics](https://cran.r-project.org/web/views/Multivariate.html) 
+[R packages for multivariate statistics](https://cran.r-project.org/web/views/Multivariate.html)  
 [Introduction to visualising spatial data in R](https://cran.r-project.org/doc/contrib/intro-spatial-rl.pdf)  
 [rOpenSci packages](https://ropensci.org/packages/)  
 [R bloggers](http://www.r-bloggers.com/)  
