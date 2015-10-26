@@ -101,7 +101,7 @@ qplot(weight, data=cw, geom="density", fill=Diet, alpha=I(0.5))
 ```
 
 # `ggplot`
-`qplot` does not show the power of `ggplot`. `ggplot2` functions can be chained with "+" signs. All the options that can be chained are available at  [docs.ggplot2.org](http://docs.ggplot2.org/current/). Let us remake the previous graphs using a few of the wide variety of options available in `ggplot`.  
+`qplot` does not show the power of `ggplot`. `ggplot` functions can be chained with "+" signs. All the options that can be chained are available at  [docs.ggplot2.org](http://docs.ggplot2.org/current/). Let us remake the previous graphs using a few of the wide variety of options available in `ggplot`.  
 
 ## Scatterplots
 ```{r}
@@ -124,7 +124,7 @@ ggplot(cw, aes(x=Diet, y=weight, colour=Diet)) + geom_boxplot() +
   stat_summary(fun.y="mean", geom="point", shape=5, size=4) + 
   labs(title="Relationship between diet and weight", 
     x="Diet", y="Weight") +
-  theme(plot.title=element_text(size=rel(1.5))) + # Title twice the base font size
+  theme(plot.title=element_text(size=rel(1.5))) + 
   theme(axis.title.x=element_text(size=rel(1.2))) + 
   theme(axis.title.y=element_text(size=rel(1.2))) + 
   scale_fill_brewer(palette="Pastel1")
@@ -185,7 +185,7 @@ ggplot(cwse12, aes(x=Time, y=weightm, colour=Diet)) +
     geom_point(size=3)
 
 # Stacked area graph
-# Area graphs represent cumulated totals over time
+# Area graphs represent cumulative totals over time
 #tapply(cw$weight, cw$Diet, FUN=sum)
 #cwd4 <- subset(cw, Diet==4)
 #tapply(cwd4$weight, cwd4$Time, FUN=sum)
