@@ -21,7 +21,7 @@ install.packages("rWBclimate")
 install.packages("cati")
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+```{r, warning=FALSE, message=FALSE}
 # Load libraries
 library(RCurl) # Download URLs
 library(ggplot2) # Create plots
