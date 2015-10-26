@@ -4,12 +4,14 @@ Data club organized by graduate students in the Biology Dept. at UVM
 
 ### 2015-10-23 - Introduction to `ggplot`  
 [Markdown document](https://raw.githubusercontent.com/flopezo/atd/master/intro_to_ggplot.Rmd)  
+[PDF document](https://github.com/flopezo/atd/raw/master/intro_to_ggplot.pdf)  
 
 ### 2015-10-16 - Maps in R
 [Markdown document](https://raw.githubusercontent.com/adnguyen/adnguyen.github.io/master/assets/Yai_map_precip.Rmd)  
 [Data](https://raw.githubusercontent.com/adnguyen/adnguyen.github.io/master/assets/Coordinates_Sites.csv)
 
 ### Links of interest
+[A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
 [An introduction to R](https://cran.r-project.org/doc/manuals/R-intro.html)  
 [Markdown basics](http://rmarkdown.rstudio.com/authoring_basics.html)  
 [`ggplot` documenatation](http://docs.ggplot2.org/current/)  
