@@ -12,7 +12,7 @@ Data club organized by graduate students in the Biology Dept. at UVM
 
 ### Links of interest
 [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
-[An introduction to R](https://cran.r-project.org/doc/manuals/R-intro.html)  
+[An introduction to R](http://galton.uchicago.edu/~eichler/stat24600/Handouts/R-intro.pdf)  
 [Google's R Style Guide](https://google-styleguide.googlecode.com/svn/trunk/Rguide.xml)  
 [Markdown basics](http://rmarkdown.rstudio.com/authoring_basics.html)  
 [`ggplot` documentation](http://docs.ggplot2.org/current/)  
