@@ -1,5 +1,5 @@
 ---
-title: "An introduction to ggplot"
+title: "An introduction to `ggplot`"
 author: "Federico Lopez"
 date: "October 23, 2015"
 output:
