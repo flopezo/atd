@@ -1,0 +1,165 @@
+---
+title: "Multivariate Stats in R"
+author: "Mike Herrmann"
+date: "Thursday, October 29, 2015"
+output: 
+  pdf_document:
+    toc: yes
+---
+
+# Statistical tests that we will be covering
+1. ANOVA and LM
+2. Principal Component Analysis
+3. Discriminant Analysis
+4. Non-metric Multidimentional Scaling (NMDS)
+
+```{r eval=FALSE}
+# Install required packages
+install.packages("MASS")
+install.packages("ggplot2")
+install.packages("vegan")
+install.packages("Ecdat")
+install.packages("ellipse")
+```
+```{r warning=FALSE, message=FALSE}
+# Load packages
+library(MASS)
+library(ggplot2)
+library(vegan)
+library(Ecdat)
+```
+
+# ANOVA, ANCOVA, and LM
+First example, basic ANOVA. We will use a diamond dataset in the package Ecdat. It compares the price of diamonds to several measurements.
+
+```{r}
+attach(Diamond)
+View(Diamond)
+
+#test for effects of transmission type, starting with a simple one-way test
+
+diamond_test1 <- aov(price ~ clarity)
+summary(diamond_test1)
+
+#add in more factors, using * between factors will give you a full-factorial design
+#A WARNING! R uses a type-I sequencial SS for their analysis. THIS ANALYSIS WILL GIVE DIFFERENT RESULTS BASED ON VARIABLE ORDER FOR NON-ORTHOGONAL DESIGNS! Watch for this if you do not have equal observations in all of your variables!
+diamond_test3 <- aov(price ~ colour*clarity*certification)
+summary(diamond_test3)
+#To look at diagnostic plots, we can use the plot function
+plot(diamond_test3)
+
+#to see effect directions, boxplots work well
+boxplot(price~clarity)
+plot(price~carat)
+
+#For an ANCOVA, replace * with +. This is also useful if you have a random variable, such as with a blocking design, that you want to try to account for.
+
+diamond_ancova<-aov(price ~ clarity + colour)
+summary(diamond_ancova)
+
+#linear models work essentially the same way, but instead of "aov", we use "lm"
+
+diamond_lm <- lm(price~carat)
+summary(diamond_lm)
+plot(diamond_lm)
+
+
+detach(Diamond)
+```
+
+# Principal Component Analysis (PCA)
+Principal component analysis- to look at this, we will use a different sample data set that comes with R, the Iris dataset
+```{r}
+attach(iris)
+summary(iris)
+
+par(mfrow=c(1,1))
+PC <- princomp(iris[,1:4], scores=TRUE)
+summary(PC)
+plot(PC, type="lines")
+
+biplot(PC)
+biplot(PC, xlabs=Species)
+biplot(PC)
+#set up a 3D plot
+library(rgl)
+plot3d(PC$scores[,1:3], col=as.integer(Species))
+
+#We can perform unsupervised clustering using k-means
+cl <- kmeans(iris[,1:4],3)
+iris$cluster <- as.factor(cl$cluster)
+#Now lets check how our clustering performed
+table(iris$cluster, Species)
+```
+
+# Linear Discriminant Analysis
+```{r}
+# Check for collinear values
+cor <- cor(iris[,1:4])
+dissimilarity <- 1-abs(cor)
+
+distance <- as.dist(dissimilarity)
+
+hc <- hclust(distance)
+
+clusterV=cutree(hc, h=0.05)
+clusterV
+
+cor(Petal.Length, Petal.Width)
+Petal.Width <- NULL
+# The LDA
+irisLDA <- lda(iris[,1:4], Species, CV=FALSE)
+irisCV <- lda(iris[,1:4], Species, CV=TRUE)
+
+plot(irisLDA)
+irisLDA$counts
+#CV
+table(Species, irisCV$class)
+pred <- predict(irisLDA)
+#Percent explained by each DA
+prop <- irisLDA$svd^2/sum(irisLDA$svd^2)
+prop
+
+#use ggplot to make a much prettier version of the LDA plot
+pred<-data.frame(Species=predict(irisLDA)$class,predict(irisLDA)$x) 
+library(ellipse) 
+dat_ell <- data.frame() 
+
+for(g in levels(pred$Species)){ 
+dat_ell <- rbind(dat_ell, cbind(as.data.frame(with(pred[pred$Species==g,], ellipse(cor(LD1, LD2), scale=c(sd(LD1),sd(LD2)),centre=c(mean(LD1),mean(LD2))))),Species=g))} 
+
+ggplot(pred, aes(x=LD1, y=LD2, col=Species) ) + geom_point( size = 4, aes(color = Species))+theme_bw()+geom_path(data=dat_ell,aes(x=x,y=y,color=Species),size=1,linetype=2) 
+```
+
+# Non-metric Multidimentional Scaling (NMDS)
+```{r}
+set.seed(2)
+#set up random species data
+community_matrix=matrix(
+   sample(1:100,300,replace=T),nrow=10,
+   dimnames=list(paste("community",1:10,sep=""),paste("sp",1:30,sep="")))
+
+example_NMDS=metaMDS(community_matrix, # Our community-by-species matrix
+                     k=2) # k = number of dimentions
+
+#stressplot - if points remain close to the line, our data retains its original differences despite the dimention reduction
+stressplot(example_NMDS)
+
+
+#plot nmds- communities ("sites") are open circles, species are red crosses
+plot(example_NMDS)
+
+#we can use ordiplot to create a plot with labels
+
+ordiplot(example_NMDS,type="n")
+orditorp(example_NMDS,display="species",col="red",air=0.01)
+orditorp(example_NMDS,display="sites",cex=1.25,air=0.01)
+
+
+treat=c(rep("Treatment1",5),rep("Treatment2",5))
+ordiplot(example_NMDS,type="n")
+ordiellipse(example_NMDS,groups=treat,draw="polygon",col="grey90",label=F)
+orditorp(example_NMDS,display="species",col="red",air=0.01)
+orditorp(example_NMDS,display="sites",col=c(rep("green",5),rep("blue",5)),
+   air=0.01,cex=1.25)
+```
