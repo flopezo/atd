@@ -2,6 +2,10 @@
 Data club organized by graduate students in the Biology Dept. at UVM  
 [Fall 2015 schedule](https://github.com/flopezo/atd/blob/master/atd_schedule_2015.pdf)
 
+### 2015-10-30 - Multivariate Statistics
+[Markdown document](https://raw.githubusercontent.com/flopezo/atd/master/Multivar_R.Rmd)  
+[PDF document](https://github.com/flopezo/atd/raw/master/Multivar_R.pdf)  
+
 ### 2015-10-23 - Introduction to `ggplot`  
 [Markdown document](https://raw.githubusercontent.com/flopezo/atd/master/intro_to_ggplot.Rmd)  
 [PDF document](https://github.com/flopezo/atd/raw/master/intro_to_ggplot.pdf)  
