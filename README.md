@@ -20,6 +20,7 @@ Data club organized by graduate students in the Biology Dept. at UVM
 [Google's R Style Guide](https://google-styleguide.googlecode.com/svn/trunk/Rguide.xml)  
 [Markdown basics](http://rmarkdown.rstudio.com/authoring_basics.html)  
 [`ggplot` documentation](http://docs.ggplot2.org/current/)  
+[R bootcamp at UC Berkeley, 2015](https://github.com/berkeley-scf/r-bootcamp-2015/tree/master/modules)
 [Quick-R](http://www.statmethods.net/)  
 R packages for [ecology](https://cran.r-project.org/web/views/Environmetrics.html), [phylogenetics](https://cran.r-project.org/web/views/Phylogenetics.html), [genetics](https://cran.r-project.org/web/views/Genetics.html), and [analysis of spatial data](https://cran.r-project.org/web/views/Spatial.html)  
 [R packages for multivariate statistics](https://cran.r-project.org/web/views/Multivariate.html)  
