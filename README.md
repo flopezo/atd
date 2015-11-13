@@ -2,7 +2,7 @@
 Data club organized by graduate students in the Biology Dept. at UVM  
 [Fall 2015 schedule](https://github.com/flopezo/atd/blob/master/atd_schedule_2015.pdf)
 
-2015-11-13 - Data Wrangling in R
+### 2015-11-13 - Data Wrangling in R  
 [Markdown document](https://github.com/flopezo/atd/raw/master/data_wrangling_r.Rmd)  
 [PDF document](https://github.com/flopezo/atd/raw/master/data_wrangling_r.pdf)  
 
