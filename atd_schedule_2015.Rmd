@@ -12,16 +12,8 @@ Day           | Topic                   | Session Leader  |
 2015-10-23    | Intro to ggplot         | Federico        |
 2015-10-30    | Multivariate statistics | Mike            |
 2015-11-06    | Maps revisited          | Lucia           |
-2015-11-13    | Transcriptome assembly  | Federico        |
+2015-11-13    | Data wrangling in R     | Federico        |
 2015-11-20    | Diff. gene expression   | Emily, April    |
 2015-11-27    | Thanksgiving break      |
 2015-12-04    | Spatial statistics      | Lucia
-
-# Files  
-## Maps in R
-[.Rmd](https://raw.githubusercontent.com/adnguyen/adnguyen.github.io/master/assets/Yai_map_precip.Rmd)
-[Data](https://raw.githubusercontent.com/adnguyen/adnguyen.github.io/master/assets/Coordinates_Sites.csv)  
-
-## Intro to `ggplot`
-[.Rmd](https://raw.githubusercontent.com/flopezo/atd/master/intro_to_ggplot.Rmd) [Data](https://raw.githubusercontent.com/flopezo/atd/master/Tibbets_et_al_2015_data.csv)
 
