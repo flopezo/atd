@@ -8,7 +8,7 @@ output:
 ---
 
 # An introduction to manipulating data with `tidyr` and `dplyr`
-`tidyr` is designed specifically for data tidying (not general reshaping or aggregating) and works well with 'dplyr' data pipelines. Tidy data ensures that values of different variables from the same observation are always paired. In tidy data:
+`tidyr` is designed specifically for data tidying (not general reshaping or aggregating) and works well with `dplyr` data pipelines. Tidy data ensures that values of different variables from the same observation are always paired. In tidy data:
 
 * Each variable forms a column
 * Each observation forms a row
@@ -355,6 +355,7 @@ Some content included here taken from https://github.com/STAT545-UBC
 * `(...)`: grouping in regular expressions. This allows you to retrieve the bits that matched various parts of your regular expression so you can alter them or use them for building up a new string. Each group can than be refer using `\\N`, with N being the No. of `(...)` used. This is called backreference.
 
 ```{r}
+# Find matches for a string
 ?grep
 bee.spp <- c("Apis cerana", "Apis koschevnikovi", "Apis mellifera", 
   "Apis nigrocincta", "Bombus atratus", "Bombus dahlbomii", 
@@ -365,4 +366,10 @@ i <- grep("Bombus", bee.spp)
 cat("'Bombus' appears", length(bee.spp[i]), "times")
 i
 bee.spp[i]
+
+# Replace specified values
+gsub(" ", "_", bee.spp)
+
+#grep -oE "^>.*\|" sequence.fasta
+#grep -oE "\|.*\|"  ants.fasta
 ```
