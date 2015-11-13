@@ -1,0 +1,368 @@
+---
+title: "Data Wrangling in R"
+author: "Federico Lopez"
+date: "November 13, 2015"
+output: 
+  pdf_document:
+    toc: yes
+---
+
+# An introduction to manipulating data with `tidyr` and `dplyr`
+`tidyr` is designed specifically for data tidying (not general reshaping or aggregating) and works well with 'dplyr' data pipelines. Tidy data ensures that values of different variables from the same observation are always paired. In tidy data:
+
+* Each variable forms a column
+* Each observation forms a row
+* Each type of observational unit forms a table
+
+For further detail see https://github.com/hadley/tidyr and https://ramnathv.github.io/pycon2014-r/explore/tidy.html
+
+`dplyr` provides several functions for manipulating data frames. It is a new iteration of the `plyr` package, which implements the “split-apply-combine” strategy for data analysis. Here we will go over a few examples of data manipulation using `dplyr`.
+
+# Reshaping data
+## Gather columns into rows
+```{r, warning=FALSE, message=FALSE}
+# Install and load tidyr and dplyr
+#install.packages("tidyr")
+#install.packages("dplyr")
+library(tidyr)
+library(dplyr)
+
+# Load the Iris data 
+# This data frame includes 150 obs. of 5 variables
+str(iris)
+head(iris)
+
+# Use the tbl_df from dplyr to transform a regular data frame to a tbl object
+# "tbl objects only print a few rows and all the columns that fit on one screen"
+# (transforming data frames into tbl_dfs is not a requirement to use dplyr)
+iris <- tbl_df(iris)
+iris
+
+# Summarize tbl data
+glimpse(iris)
+
+# Get first observation for each Species in iris data
+mini.iris <- iris[c(1, 51, 101), ]
+mini.iris
+
+# Gather columns into rows (converting data from wide to long)
+# Usage: gather(data, key, value, ...)
+# data: A data frame.
+# key, value: Names of key and value columns to create in output
+# ...: Specification of columns to gather
+# -Species is used to drop the Species column and gather the remaining
+# columns, that is, Sepal.Length, Sepal.Width, Petal.Length, and Petal.Width
+mini.irisl <- gather(mini.iris, key=flower_trait, value=measurement, -Species)
+mini.irisl
+```
+
+## Spread rows into columns
+```{r}
+# Spread rows into columns (converting data from long to wide)
+mini.irisw <- spread(mini.irisl, flower_trait, measurement)
+mini.irisw
+```
+
+## Order rows by values
+```{r}
+# low to high
+arrange(iris, Sepal.Length)
+
+# high to low
+arrange(iris, desc(Sepal.Length))
+```
+
+## Rename the columns of a data frame
+```{r}
+rename(iris, sp=Species)
+```
+
+# Manipulating data (filter, select, mutate, bind etc.)
+`dplyr` provides a function for each basic verb of data manipulation:
+
+* `filter()` (and `slice()`)
+* `arrange()`
+* `select()` (and `rename()`)
+* `distinct()`
+* `mutate()` (and `transmute()`)
+* `summarise()`
+* `sample_n()` and `sample_frac()`
+
+The data is always the first argument of the verb functions.
+
+## Subset observations (rows)
+### Filter
+```{r}
+# Extract rows that meet logical criteria
+filter(iris, Sepal.Length > 6)
+iris[iris$Sepal.Length > 6, ] # Using base R
+
+# Extract rows according to a factor
+filter(iris, Species == "setosa")
+subset(iris, Species == "setosa") # Using base R
+
+# Provide any number of filtering conditions, 
+# which are joined together with & or |
+filter(iris, Species == "setosa" & Sepal.Length > 5)
+filter(iris, Species == "setosa" | Sepal.Length > median(Sepal.Length))
+# Using base R code
+iris[iris$Species == "setosa" | iris$Sepal.Length > median(iris$Sepal.Length), ]
+```
+
+### Remove duplicate rows
+```{r}
+# Remove duplicate rows
+# Show duplicated rows: duplicated(iris)
+distinct(iris)
+```
+
+### Randomly select rows
+```{r}
+# Randomly select fraction of rows
+sample_frac(iris, 0.5, replace=TRUE)
+
+# Randomly select n rows
+sample_n(iris, 10, replace=TRUE)
+
+# Select rows by position
+slice(iris, 10:15)
+```
+
+## Subset variables (columns)
+### Select columns by complete or partial name, drop variables
+```{r}
+# Select columns by name 
+select(iris, Sepal.Width, Petal.Length, Species)
+
+# Select columns whose name starts with a character string
+select(iris, starts_with("Petal"))
+
+# Select columns whose name ends with a character string
+select(iris, ends_with("Length"))
+
+# Select columns whose names are in a group of names
+select(iris, one_of("Species"))
+
+# Drop variables
+select(iris, -starts_with("Petal"))
+select(iris, -contains("etal"))
+select(iris, -Petal.Length, -Petal.Width)
+select(iris, -(Sepal.Length:Petal.Length))
+
+# Using base R
+# iris$Species <- NULL
+# iris[["Species"]] <- NULL
+# iris[,"Species"]  <- NULL
+# iris[[5]] <- NULL
+# iris[,5] <- NULL
+# iris <- subset(iris, select=-Species)
+```
+
+## Summarize data
+```{r, warning=FALSE}
+summarise(group_by(iris, Species), mean(Sepal.Length))
+
+# Apply summary function to each column
+summarise_each(iris, funs(mean))
+
+iris %>%
+  select(-Species) %>%
+  summarise_each(funs(mean))
+```
+
+## Group data
+```{r}
+# Group data into rows with the same value of Species
+group_by(iris, Species)
+
+# Remove grouping information from data frame
+ungroup(iris)
+```
+
+## Make new variables
+```{r}
+# Compute and append one or more new columns
+mutate(iris, sepal=Sepal.Length + Sepal.Width)
+mutate(iris, logSepal.Length=log10(Sepal.Length))
+
+# Using base R
+# iris[["logSepal.Length"]] <- log10(iris$Sepal.Length)
+# iris[,"logSepal.Length"] <- log10(iris$Sepal.Length)
+# iris$logSepal.Length <- log10(iris$Sepal.Length)
+
+# Drop existing variables
+transmute(iris, logSepal.Length=log10(Sepal.Length))
+
+# Compute one or more new columns. Drop original columns
+transmute(iris, sepal=Sepal.Length + Sepal.Width) 
+```
+
+## Combine data sets
+```{r}
+a <- data_frame(x1=c("A", "B", "C"), x2=c(1, 2, 3))
+b <- data_frame(x1=c("A", "B", "D"), x3=c("T", "F", "T"))
+
+# Join matching rows from b to a
+left_join(a, b, by="x1")
+
+# Join matching rows from a to b
+right_join(a, b, by="x1")
+
+# Join data. Retain only rows in both sets
+inner_join(a, b, by="x1")
+
+# Join data. Retain all values, all rows
+full_join(a, b, by="x1")
+
+# All rows in a that have a match in b
+semi_join(a, b, by="x1")
+
+# All rows in a that do not have a match in b
+anti_join(a, b, by="x1")
+```
+
+### Set operations
+These expect the x and y inputs to have the same variables, and treat the observations like sets.
+```{r}
+y <- data_frame(x1=c("A", "B", "C"), x2=c(1, 2, 3))
+z <- data_frame(x1=c("B", "C", "D"), x2=c(2, 3, 4))
+str(y)
+glimpse(y)
+
+# Rows that appear in both y and z
+intersect(y, z)
+
+# Rows that appear in either or both y and z
+union(y, z)
+
+# Rows that appear in y but not z
+setdiff(y, z)
+```
+
+### Binding
+```{r}
+# Append z to y as new rows
+bind_rows(y, z)
+
+# Append z to y as new columns. Caution: matches rows by position
+bind_cols(y, z)
+
+
+```
+
+For further information on `dplyr`:  
+https://cran.r-project.org/web/packages/dplyr/index.html  
+http://blog.rstudio.org/2014/01/17/introducing-dplyr/  
+http://www.dataschool.io/dplyr-tutorial-for-faster-data-manipulation-in-r/  
+
+# Using `magrittr` to create pipelines
+According to its documentation (https://github.com/smbache/magrittr), the `magrittr` package offers a set of operators which promote semantics that will improve your code by:
+
+* structuring sequences of data operations left-to-right (as opposed to from the inside and out),
+* avoiding nested function calls,
+* minimizing the need for local variables and function definitions, and
+* making it easy to add steps anywhere in the sequence of operations.
+
+A simple example:
+```{r, warning=FALSE, message=FALSE}
+#install.packages("magrittr")
+library(magrittr)
+iris %>% head(4)
+```
+
+The pipe operator `%>%` passes the object on left hand side as first argument of function on righthand side. `dplyr` imports the `%>%` operator from `magrittr`.
+
+```{r}
+iris %>%
+  filter(Species == "setosa") %>%
+  select(Sepal.Length, Sepal.Width) %>%
+  head(10)
+
+iris %>%
+  group_by(Species) %>%
+  summarise(avg=mean(Sepal.Width)) %>%
+  arrange(avg)
+```
+  
+There are also functions that do not have a data argument, for which it is useful to expose the variables in the data. This is done with the `%$%` operator:
+```{r}
+iris %>%
+  filter(Sepal.Length > mean(Sepal.Length)) %$%
+  cor(Sepal.Length, Sepal.Width)
+```
+
+Which country experienced the sharpest 5-year drop in life expectancy?
+```{r}
+#install.packages("gapminder")
+library(gapminder)
+gtbl <- tbl_df(gapminder)
+glimpse(gtbl)
+
+#worstle <- 
+gtbl %>%
+  group_by(continent, country) %>%
+  select(country, year, continent, lifeExp) %>%
+  # lag(): copy with values lagged by 1
+  mutate(le.delta=lifeExp - lag(lifeExp)) %>%
+  summarize(worstle.delta=min(le.delta, na.rm=TRUE)) %>%
+  filter(min_rank(worstle.delta) < 2) %>%
+  arrange(worstle.delta)
+#worstle
+```
+
+What is the correlation between life expectancy and year within each country?
+```{r}
+# Fit a linear regression within country
+library(ggplot2)
+str(gapminder)
+ggplot(gapminder, aes(x=year, y=lifeExp, colour=continent)) +
+  geom_jitter() +
+  geom_smooth(lwd=1.5, method="lm")
+
+# Calculate overall correlation between year and life expectancy
+(ov.cor <- gapminder %$% 
+  cor(year, lifeExp))
+#> [1] 0.4356112
+# Calculate correlation within each country
+(gcor <- gapminder %>%
+  group_by(country) %>%
+  summarize(correlation=cor(year, lifeExp)))
+
+# The correlation between life expectancy and year is 
+# much higher within countries
+ggplot(gcor, aes(x=correlation)) +
+  geom_density() +
+  geom_vline(xintercept=ov.cor, linetype="longdash") +
+  geom_text(data=NULL, x=ov.cor, y=10, label=round(ov.cor, 2),
+            hjust=-0.1)
+```
+
+# Pattern matching and replacement
+Some content included here taken from https://github.com/STAT545-UBC
+
+## Position of pattern within the string
+* `^`: start of the string.
+* `$`: end of the string.
+* `\b`: empty string at either edge of a word. Don’t confuse it with ^ $ which marks the edge of a string.
+* `\B`: empty string provided it is not at an edge of a word.
+
+## Operators
+* `.`: matches any single character, as shown in the first example.
+* `[...]`: a character list, matches any one of the characters inside the square brackets. We can also use - inside the brackets to specify a range of characters.
+* `[^...]`: an inverted character list, similar to [...], but matches any characters except those inside the square brackets.
+* `\`: suppress the special meaning of metacharacters in regular expression, i.e. `$ * + . ? [ ] ^ { } | ( ) \`, similar to its usage in escape sequences. Since `\` itself needs to be escaped in R, we need to escape these metacharacters with double backslash like `\\$`.
+* `|`: an “or” operator, matches patterns on either side of the `|`.
+* `(...)`: grouping in regular expressions. This allows you to retrieve the bits that matched various parts of your regular expression so you can alter them or use them for building up a new string. Each group can than be refer using `\\N`, with N being the No. of `(...)` used. This is called backreference.
+
+```{r}
+?grep
+bee.spp <- c("Apis cerana", "Apis koschevnikovi", "Apis mellifera", 
+  "Apis nigrocincta", "Bombus atratus", "Bombus dahlbomii", 
+  "Bombus fervidus", "Bombus lapidarius", "Bombus ruderatus", 
+  "Bombus rupestris")
+
+i <- grep("Bombus", bee.spp)
+cat("'Bombus' appears", length(bee.spp[i]), "times")
+i
+bee.spp[i]
+```
