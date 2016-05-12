@@ -104,7 +104,7 @@ subset(iris, Species == "setosa") # Using base R
 # Provide any number of filtering conditions, 
 # which are joined together with & or |
 filter(iris, Species == "setosa" & Sepal.Length > 5)
-#filter(iris, Species == "setosa" & Sepal.Length > median(Sepal.Length))
+filter(iris, Species == "setosa" & Sepal.Length < mean(Sepal.Length))
 # Using base R code
 iris[iris$Species == "setosa" | iris$Sepal.Length > median(iris$Sepal.Length), ]
 ```
@@ -312,7 +312,7 @@ gtbl %>%
 ```
 
 What is the correlation between life expectancy and year within each country?
-```{r}
+```{r, warning=FALSE}
 # Fit a linear regression within country
 library(ggplot2)
 str(gapminder)
